@@ -42,5 +42,10 @@ RUN mkdir -p /var/www/storage
 RUN chown -R www-data:www-data /var/www/
 RUN usermod -u 1000 -d /var/www/storage www-data
 
+ENV TINI_VERSION v0.13.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "--"]
+
 CMD ["/usr/sbin/apachectl", "-DFOREGROUND"]
 EXPOSE 5000

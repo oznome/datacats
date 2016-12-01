@@ -3,14 +3,23 @@
 [![Circle CI](https://circleci.com/gh/datacats/datacats.svg?style=svg)](https://circleci.com/gh/datacats/datacats)
 [![docs](https://readthedocs.org/projects/docs/badge/?version=latest)](http://docs.datacats.com/)
 
+OzNome fork of Datacats CKAN for bug fixes and customisation
 
 datacats uses Docker to give you fully self-contained [CKAN](http://ckan.org) dev environments on
 any platform, and easy deployment to any host.
 
 
 ## Install
-Please see detailed OS-specific [installation instructions in the docs](http://docs.datacats.com/guide.html#installation).
 
+Documentation is no longer available at http://docs.datacats.com/guide.html#installation presumably because of https://github.com/datacats/datacats/issues/381.
+
+It appears the documentation is available at https://github.com/boxkite/docs.datacats.com clone. You can host a local version of the documentation by cloning the documentation repository then in the cloned directory run ```docker run -dit --name datacats-doc  -P -v "$PWD":/usr/local/apache2/htdocs/ httpd:2.4```. The documentation will then be running locally at the port assigned and visible via ```docker ps```
+
+Prior to running the below do
+
+```docker/build_images.sh```
+
+this rebuilds the datacats ckan docker containers using the local dockerfiles. Compared to the original ckan there are fixes to get postgis working and avoid zombie solr containers. 
 
 ## Create a CKAN environment
 
