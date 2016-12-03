@@ -315,8 +315,8 @@ class Environment(object):
             'sqlalchemy.url = postgresql://<hidden>',
             'ckan.datastore.read_url = postgresql://<hidden>',
             'ckan.datastore.write_url = postgresql://<hidden>',
-            'ckan.datapusher.url = http://datapusher:8800',
-            'ckan.redis.url = redis://redis:6379/0',
+            'ckan.datapusher.url = http://datapusher:8800' +
+            ('ckan.redis.url = redis://redis:6379/0' if self.ckan_version == 'latest' else ''),
             'solr_url = http://solr:8080/solr',
             'ckan.storage_path = /var/www/storage',
             'ckan.plugins = datastore resource_proxy text_view ' +
