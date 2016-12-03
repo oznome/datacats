@@ -18,7 +18,7 @@ It appears the documentation is available at https://github.com/boxkite/docs.dat
 Prior to running the below do
 
 ```
-docker/build_images.sh
+cd docker && ./build_images.sh
 ```
 
 this rebuilds the datacats ckan docker containers using the local dockerfiles. Compared to the original ckan there are fixes to get postgis working and avoid zombie solr containers. 
