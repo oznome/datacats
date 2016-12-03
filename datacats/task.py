@@ -493,7 +493,7 @@ def start_supporting_containers(sitedir, srcdir, passwords,
 
     running = set(containers_running(get_container_name))
 
-    needed = set(extra_containers).union({'postgres', 'solr'})
+    needed = set(extra_containers).union({'postgres', 'solr', 'redis'})
 
     if not needed.issubset(running):
         stop_supporting_containers(get_container_name, extra_containers)
@@ -516,6 +516,13 @@ def start_supporting_containers(sitedir, srcdir, passwords,
             ro={srcdir + '/schema.xml': '/etc/solr/conf/schema.xml'},
             log_syslog=log_syslog)
 
+        docker.run_container(
+            name=get_container_name('redis'),
+            image='datacats/redis')
+            #rw={sitedir + '/solr': '/var/lib/solr'},
+            #ro={srcdir + '/schema.xml': '/etc/solr/conf/schema.xml'},
+            #log_syslog=log_syslog)
+
         for container in extra_containers:
             # We don't know a whole lot about the extra containers so we're just gonna have to
             # mount /project and /datadir r/o even if they're not needed for ease of
@@ -537,6 +544,7 @@ def stop_supporting_containers(get_container_name, extra_containers):
     """
     docker.remove_container(get_container_name('postgres'))
     docker.remove_container(get_container_name('solr'))
+    docker.remove_container(get_container_name('redis'))
     for container in extra_containers:
         docker.remove_container(get_container_name(container))
 

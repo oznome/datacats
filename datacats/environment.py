@@ -316,6 +316,7 @@ class Environment(object):
             'ckan.datastore.read_url = postgresql://<hidden>',
             'ckan.datastore.write_url = postgresql://<hidden>',
             'ckan.datapusher.url = http://datapusher:8800',
+            'ckan.redis.url = redis://redis:6379/0',
             'solr_url = http://solr:8080/solr',
             'ckan.storage_path = /var/www/storage',
             'ckan.plugins = datastore resource_proxy text_view ' +
@@ -352,6 +353,7 @@ class Environment(object):
                     '-c /project/development.ini',
                     db_links=True,
                     clean_up=True,
+                    rw_project=True
                     )
                 break
             except WebCommandError:
@@ -506,7 +508,8 @@ class Environment(object):
 
         links = {
             self._get_container_name('solr'): 'solr',
-            self._get_container_name('postgres'): 'db'
+            self._get_container_name('postgres'): 'db',
+            self._get_container_name('redis'): 'redis'
         }
 
         links.update({self._get_container_name(container): container
@@ -732,7 +735,9 @@ class Environment(object):
                              self.sitedir + '/run/proxy-environment:/etc/environment:ro']
 
         links = {self._get_container_name('solr'): 'solr',
-                 self._get_container_name('postgres'): 'db'}
+                 self._get_container_name('postgres'): 'db',
+                 self._get_container_name('redis'): 'redis',
+                 }
 
         links.update({self._get_container_name(container): container for container
                       in self.extra_containers})
@@ -843,6 +848,7 @@ class Environment(object):
             links = {
                 self._get_container_name('solr'): 'solr',
                 self._get_container_name('postgres'): 'db',
+                self._get_container_name('redis'): 'redis',
                 }
             ro[self.sitedir + '/run/run.ini'] = '/project/development.ini'
         else:
