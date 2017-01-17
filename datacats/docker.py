@@ -23,9 +23,11 @@ from warnings import warn
 # let's hope docker calms down a bit so we can clean this out
 # in the future.
 
-from docker import Client
+import docker
+client = docker.from_env()
 from docker.constants import DEFAULT_DOCKER_API_VERSION
-from docker.utils import kwargs_from_env, compare_version, create_host_config, LogConfig
+from docker.utils import kwargs_from_env, compare_version, create_host_config
+from docker.types import LogConfig, HostConfig
 from docker.errors import APIError, TLSParameterError
 from requests import ConnectionError
 
@@ -43,7 +45,7 @@ wget http://get.docker.io | sh.
 The simplest way to create and start a docker-machine VM is to run \
 "docker-machine create dev && docker-machine start dev",\
 then to add the line "eval '$(docker-machine env dev)'" to your .bashrc file.'''
-MINIMUM_API_VERSION = '1.16'
+MINIMUM_API_VERSION = '1.21'
 
 
 def get_api_version(*versions):
@@ -100,14 +102,14 @@ def _get_docker():
             _machine_check_connectivity()
 
         # Create the Docker client
-        version_client = Client(version=MINIMUM_API_VERSION, **_docker_kwargs)
+        version_client = docker.APIClient(version=MINIMUM_API_VERSION, **_docker_kwargs)
         try:
             api_version = version_client.version()['ApiVersion']
         except ConnectionError:
             try:
                 # workaround for connection issue when old version specified
                 # on some clients
-                version_client = Client(**_docker_kwargs)
+                version_client = docker.APIClient(**_docker_kwargs)
                 api_version = version_client.version()['ApiVersion']
             except:
                 raise DatacatsError(DOCKER_FAIL_STRING)
@@ -115,7 +117,7 @@ def _get_docker():
             raise DatacatsError(DOCKER_FAIL_STRING)
 
         version = get_api_version(DEFAULT_DOCKER_API_VERSION, api_version)
-        _docker = Client(version=version, **_docker_kwargs)
+        _docker = docker.APIClient(version=version, **_docker_kwargs)
 
     return _docker
 
@@ -186,13 +188,11 @@ def web_command(command, ro=None, rw=None, links=None,
         command=command,
         volumes=binds_to_volumes(binds),
         detach=False,
-        host_config=create_host_config(binds=binds),
+        host_config=HostConfig(version=MINIMUM_API_VERSION, binds=binds, links=links, volumes_from=volumes_from),
         entrypoint=entrypoint)
     _get_docker().start(
-        container=c['Id'],
-        links=links,
-        binds=binds,
-        volumes_from=volumes_from)
+        container=c['Id']
+        )
     if stream_output:
         for output in _get_docker().attach(
                 c['Id'], stdout=True, stderr=True, stream=True):
@@ -274,7 +274,8 @@ def run_container(name, image, command=None, environment=None,
         log_config = LogConfig(
             type=LogConfig.types.SYSLOG,
             config={'syslog-tag': name})
-    host_config = create_host_config(binds=binds, log_config=log_config)
+
+    host_config = HostConfig(version=MINIMUM_API_VERSION, binds=binds, log_config=log_config, links=links, volumes_from=volumes_from, port_bindings=port_bindings)
 
     c = _get_docker().create_container(
         name=name,
@@ -289,11 +290,7 @@ def run_container(name, image, command=None, environment=None,
         host_config=host_config)
     try:
         _get_docker().start(
-            container=c['Id'],
-            links=links,
-            binds=binds,
-            volumes_from=volumes_from,
-            port_bindings=port_bindings)
+            container=c['Id'])
     except APIError as e:
         if 'address already in use' in e.explanation:
             try:

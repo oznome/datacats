@@ -14,7 +14,7 @@ import sys
 install_requires = [
     'setuptools',
     'docopt',
-    'docker-py>=1.2.1',
+    'docker',
     'clint',  # to output colored text to terminal
     'requests>=2.5.2',  # help with docker-py requirement
     'lockfile',
