@@ -518,7 +518,7 @@ def start_supporting_containers(sitedir, srcdir, passwords,
 
         docker.run_container(
             name=get_container_name('redis'),
-            image='datacats/redis')
+            image='library/redis')
             #rw={sitedir + '/solr': '/var/lib/solr'},
             #ro={srcdir + '/schema.xml': '/etc/solr/conf/schema.xml'},
             #log_syslog=log_syslog)

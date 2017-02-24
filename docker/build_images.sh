@@ -21,7 +21,7 @@ docker build -t datacats/ckan ckan/
 docker build -t datacats/ckan:2.3 -f ckan/Dockerfile-2.3 ckan/
 docker build -t datacats/ckan:2.4 -f ckan/Dockerfile-2.4 ckan/
 docker pull redis 
-docker tag redis datacats/redis
+docker tag redis library/redis
 
 [ "$1" == "push" ] || exit
 
